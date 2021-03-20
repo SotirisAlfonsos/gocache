@@ -352,7 +352,7 @@ func TestDeleteItem(t *testing.T) {
 				},
 			},
 			expected: expected{
-				items: []Item{},
+				items:     []Item{},
 				itemCount: 0,
 			},
 		},
@@ -398,7 +398,7 @@ func TestDeleteItem(t *testing.T) {
 	for _, td := range testData {
 		t.Run(td.message, func(t *testing.T) {
 			key := key{
-				id: "item to delete",
+				id:    "item to delete",
 				value: 2,
 			}
 
@@ -413,14 +413,13 @@ func TestDeleteItem(t *testing.T) {
 	}
 }
 
-
 func TestDeleteAllItems(t *testing.T) {
 	testData := []testDataWithExistingCache{
 		{
 			message: "Should not do anything if cache already empty",
 			cache: Cache{
 				&cache{
-					items: []*Item{},
+					items:      []*Item{},
 					expiration: 1 * time.Nanosecond,
 				},
 			},
