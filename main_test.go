@@ -198,7 +198,7 @@ func TestGetItem(t *testing.T) {
 				items: []Item{
 					{Key: key{id: "first id", value: 1}, Value: "val 1"},
 				},
-				ok:        true,
+				ok: true,
 			},
 		},
 		{
@@ -208,7 +208,7 @@ func TestGetItem(t *testing.T) {
 				items: []Item{
 					{Key: key{id: "item does not exist", value: 1}, Value: "val 3"},
 				},
-				ok:        false,
+				ok: false,
 			},
 		},
 		{
@@ -224,7 +224,7 @@ func TestGetItem(t *testing.T) {
 				items: []Item{
 					{Key: key{id: "item does not exist", value: 1}, Value: "val 3"},
 				},
-				ok:        false,
+				ok: false,
 			},
 		},
 	}

@@ -6,19 +6,21 @@ import (
 )
 
 const (
-	// For use with functions that take an expiration time.
-	NoExpiration time.Duration = 0
+	noExpiration time.Duration = 0
 )
 
+// Cache is the instance of the cache. Use New to create
 type Cache struct {
 	*cache
 }
 
+// New creates a new cache instance with expiration.
+// For cache with no expiration policy provide a value of 0 or less
 func New(expiration time.Duration) *Cache {
 	var items []*Item
 
 	if expiration <= 0 {
-		expiration = NoExpiration
+		expiration = noExpiration
 	}
 
 	c := &cache{
@@ -31,6 +33,7 @@ func New(expiration time.Duration) *Cache {
 	}
 }
 
+// Key is the interface that is used as the key for the cache Items
 type Key interface {
 	Equals(key Key) bool
 }
@@ -116,7 +119,7 @@ func (c *cache) Evict() {
 func (c *cache) evict() {
 	newItems := make([]*Item, 0)
 	for _, item := range c.items {
-		if c.expiration == NoExpiration {
+		if c.expiration == noExpiration {
 			newItems = append(newItems, item)
 		} else if time.Now().UnixNano() < item.expireAt {
 			newItems = append(newItems, item)
@@ -143,7 +146,7 @@ func (c *cache) newItem(key Key, val interface{}) *Item {
 }
 
 func (c *cache) getItem(key Key) (*Item, bool) {
-	item, i, ok := func() (*Item, int, bool){
+	item, i, ok := func() (*Item, int, bool) {
 		for i, item := range c.items {
 			if item.Key.Equals(key) {
 				return item, i, true
@@ -157,7 +160,7 @@ func (c *cache) getItem(key Key) (*Item, bool) {
 	}
 
 	switch {
-	case c.expiration == NoExpiration:
+	case c.expiration == noExpiration:
 		return item, true
 	case time.Now().UnixNano() > item.expireAt:
 		c.evictItem(i)
