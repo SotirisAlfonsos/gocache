@@ -339,6 +339,122 @@ func TestGetAllItemsWIthExpiration(t *testing.T) {
 	}
 }
 
+func TestDeleteItem(t *testing.T) {
+	testData := []testDataWithExistingCache{
+		{
+			message: "Should have empty cache after deleting single item",
+			cache: Cache{
+				&cache{
+					items: []*Item{
+						{Key: key{id: "item to delete", value: 1}, Value: "val 1", expireAt: time.Now().UnixNano() - 10},
+					},
+					expiration: 1 * time.Nanosecond,
+				},
+			},
+			expected: expected{
+				items: []Item{},
+				itemCount: 0,
+			},
+		},
+		{
+			message: "Should have single item in cache after deleting single item",
+			cache: Cache{
+				&cache{
+					items: []*Item{
+						{Key: key{id: "first id", value: 1}, Value: "val 1", expireAt: time.Now().UnixNano() - 10},
+						{Key: key{id: "item to delete", value: 2}, Value: "val 2", expireAt: time.Now().UnixNano() - 10},
+						{Key: key{id: "third id", value: 3}, Value: "val 3", expireAt: time.Now().UnixNano() - 10},
+					},
+					expiration: 1 * time.Nanosecond,
+				},
+			},
+			expected: expected{
+				items: []Item{
+					{Key: key{id: "first id", value: 1}, Value: "val 1"},
+					{Key: key{id: "third id", value: 3}, Value: "val 3"},
+				},
+				itemCount: 2,
+			},
+		},
+		{
+			message: "Should not change cache if item does not exist",
+			cache: Cache{
+				&cache{
+					items: []*Item{
+						{Key: key{id: "first id", value: 1}, Value: "val 1", expireAt: time.Now().UnixNano() + 10*time.Minute.Nanoseconds()},
+					},
+					expiration: 1 * time.Nanosecond,
+				},
+			},
+			expected: expected{
+				items: []Item{
+					{Key: key{id: "first id", value: 1}, Value: "val 1"},
+				},
+				itemCount: 1,
+			},
+		},
+	}
+
+	for _, td := range testData {
+		t.Run(td.message, func(t *testing.T) {
+			key := key{
+				id: "item to delete",
+				value: 2,
+			}
+
+			td.cache.Delete(key)
+
+			assert.Equal(t, td.expected.itemCount, td.cache.ItemCount())
+			for i, item := range td.cache.GetAll() {
+				assert.Equal(t, td.expected.items[i].Value, item.Value)
+				assert.Equal(t, td.expected.items[i].Key, item.Key)
+			}
+		})
+	}
+}
+
+
+func TestDeleteAllItems(t *testing.T) {
+	testData := []testDataWithExistingCache{
+		{
+			message: "Should not do anything if cache already empty",
+			cache: Cache{
+				&cache{
+					items: []*Item{},
+					expiration: 1 * time.Nanosecond,
+				},
+			},
+			expected: expected{
+				itemCount: 0,
+			},
+		},
+		{
+			message: "Should remove all items from non empty cache",
+			cache: Cache{
+				&cache{
+					items: []*Item{
+						{Key: key{id: "first id", value: 1}, Value: "val 1", expireAt: time.Now().UnixNano() + 10*time.Minute.Nanoseconds()},
+						{Key: key{id: "second id", value: 2}, Value: "val 2", expireAt: time.Now().UnixNano() - 10},
+						{Key: key{id: "third id", value: 3}, Value: "val 3", expireAt: time.Now().UnixNano() - 10},
+					},
+					expiration: 1 * time.Nanosecond,
+				},
+			},
+			expected: expected{
+				itemCount: 0,
+			},
+		},
+	}
+
+	for _, td := range testData {
+		t.Run(td.message, func(t *testing.T) {
+			td.cache.DeleteAll()
+
+			assert.Equal(t, td.expected.itemCount, td.cache.ItemCount())
+		})
+	}
+}
+
 func TestEvictItems(t *testing.T) {
 	testData := []testDataWithExistingCache{
 		{

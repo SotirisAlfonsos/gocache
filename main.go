@@ -108,6 +108,25 @@ func (c *cache) GetAll() []Item {
 	return items
 }
 
+// Delete will remove the item with the provided key from the cache.
+func (c *cache) Delete(key Key) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	for i, item := range c.items {
+		if key.Equals(item.Key) {
+			c.deleteIndex(i)
+		}
+	}
+}
+
+// DeleteAll deletes all items from the cache.
+func (c *cache) DeleteAll() {
+	c.mu.Lock()
+	c.items = make([]*Item, 0)
+	c.mu.Unlock()
+}
+
 // Evict will remove all expired items from the cache.
 func (c *cache) Evict() {
 	c.mu.Lock()
@@ -163,14 +182,14 @@ func (c *cache) getItem(key Key) (*Item, bool) {
 	case c.expiration == noExpiration:
 		return item, true
 	case time.Now().UnixNano() > item.expireAt:
-		c.evictItem(i)
+		c.deleteIndex(i)
 		return nil, false
 	}
 
 	return item, true
 }
 
-func (c *cache) evictItem(i int) {
+func (c *cache) deleteIndex(i int) {
 	c.items[i] = c.items[len(c.items)-1]
 	c.items = c.items[:len(c.items)-1]
 }
