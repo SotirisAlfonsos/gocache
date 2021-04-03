@@ -4,7 +4,7 @@
 [![codebeat badge](https://codebeat.co/badges/d47cd5fb-cb6c-4eea-9f3c-c414655dbe3a)](https://codebeat.co/projects/github-com-sotirisalfonsos-gocache-main)
 [![codecov](https://codecov.io/gh/SotirisAlfonsos/gocache/branch/main/graph/badge.svg?token=pOexX69rp4)](https://codecov.io/gh/SotirisAlfonsos/gocache)
 
-# Gocache
+# Go cache
 An in memory flexible cache, with lazy eviction, where both key and value are interfaces 
 
 ## Usage
